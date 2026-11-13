@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tools | Entrusted</title>
+<meta name="description" content="Compound growth and debt payoff calculators. Nothing is stored or sent.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%231d5640'/%3E%3Ctext x='16' y='23.5' font-family='Georgia,serif' font-size='21' text-anchor='middle' fill='%23f7f4ec'%3EE%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="tools-page">
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head">
+<div class="wrap head-inner">
+<a class="brand" href="index.html"><span class="brand-name">Entrusted</span><span class="brand-sub">Managing God's Money</span></a>
+<nav class="site-nav" aria-label="Main"><ul><li><a href="index.html">Home</a></li><li><a href="steps.html">Steps</a></li><li><a href="one-night.html">One Night</a></li><li><a href="campus.html">4 Weeks</a></li><li><a href="church.html">8 Weeks</a></li><li><a href="handouts.html">Handouts</a></li><li><a href="leader.html">Leader Prep</a></li><li><a href="tools.html" aria-current="page">Tools</a></li><li><a href="about.html">About</a></li></ul></nav>
+</div>
+</header>
+<main id="main">
+<header class="page-head wrap">
+<h1>Tools</h1>
+<p class="lede">Two calculators used in the sessions. They run entirely in your browser: nothing you type is stored or sent anywhere.</p>
+<p class="tools-more">For a growth chart, a year-by-year spreadsheet you can edit, and an opportunity cost calculator, open the <a href="compound.html">compound interest page</a>.</p>
+</header>
+<div class="wrap tools">
+<section class="tool" id="growth" aria-labelledby="growth-h">
+<h2 id="growth-h">Compound growth</h2>
+<p>What a steady monthly amount could grow to by a given age, and what starting ten years later costs.</p>
+<form id="growth-form" class="calc" novalidate>
+<label for="g-amt">Monthly amount ($)<input id="g-amt" type="number" inputmode="decimal" min="0" step="any" value="200"></label>
+<label for="g-start">Start age<input id="g-start" type="number" inputmode="numeric" min="0" max="110" step="1" value="22"></label>
+<label for="g-end">End age<input id="g-end" type="number" inputmode="numeric" min="1" max="120" step="1" value="65"></label>
+<label for="g-rate">Annual return (%)<input id="g-rate" type="number" inputmode="decimal" min="0" max="30" step="0.1" value="7"></label>
+<button type="submit" class="calc-btn">Calculate</button>
+</form>
+<div class="results" id="g-out" aria-live="polite"></div>
+<p class="note">The return is an assumption, compounded monthly. Real markets rise and fall, and returns are not guaranteed. This is a teaching tool, not investment advice.</p>
+<details><summary>How this is calculated</summary>
+<p>Ending value = P &times; ((1 + r/12)<sup>n</sup> &minus; 1) &divide; (r/12), where P is the monthly amount, r is the annual return as a decimal, and n is the number of months between the two ages. Each deposit is made at the end of the month.</p>
+</details>
+</section>
+
+<section class="tool" id="debt" aria-labelledby="debt-h">
+<h2 id="debt-h">Debt payoff</h2>
+<p>How long a balance takes to pay off at a fixed monthly payment, and what it costs in interest.</p>
+<form id="debt-form" class="calc" novalidate>
+<label for="d-bal">Balance ($)<input id="d-bal" type="number" inputmode="decimal" min="0" step="any" value="5000"></label>
+<label for="d-apr">APR (%)<input id="d-apr" type="number" inputmode="decimal" min="0" max="100" step="0.1" value="24"></label>
+<label for="d-pay">Monthly payment ($)<input id="d-pay" type="number" inputmode="decimal" min="0" step="any" value="200"></label>
+<button type="submit" class="calc-btn">Calculate</button>
+</form>
+<div class="results" id="d-out" aria-live="polite"></div>
+<p class="note">Assumes the APR stays the same and nothing new is charged. Interest is figured monthly at the APR divided by 12.</p>
+</section>
+</div>
+</main>
+<footer class="site-foot">
+<div class="wrap">
+<p class="foot-name">Entrusted: Managing God's Money</p>
+<p>Teaching for churches and small groups, not professional financial advice. Scripture is given by reference so you can read it in your own Bible. <a href="about.html">About this course</a></p>
+</div>
+</footer>
+<script id="calc-core">
+function growth(monthly, startAge, endAge, ratePct) {
+  var n = Math.round((endAge - startAge) * 12);
+  if (n <= 0) return { months: 0, contributed: 0, value: 0 };
+  var i = ratePct / 100 / 12;
+  var value = i === 0 ? monthly * n : monthly * (Math.pow(1 + i, n) - 1) / i;
+  return { months: n, contributed: monthly * n, value: value };
+}
+function payoff(balance, aprPct, payment) {
+  var i = aprPct / 100 / 12;
+  var first = balance * i;
+  if (payment <= first + 1e-9) return { never: true, firstInterest: first };
+  var b = balance, months = 0, interest = 0;
+  while (b > 0.005 && months < 1200) {
+    var charge = b * i;
+    interest += charge;
+    b = b + charge - payment;
+    months++;
+  }
+  return { never: false, months: months, interest: interest, capped: b > 0.005 };
+}
+</script>
+<script>
+(function () {
+  var money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+  var cents = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  function val(id) { var v = document.getElementById(id).value.trim(); return v === '' ? NaN : Number(v); }
+  function plural(n, w) { return n + ' ' + w + (n === 1 ? '' : 's'); }
+  function duration(m) {
+    var y = Math.floor(m / 12), r = m % 12;
+    if (!y) return plural(r, 'month');
+    if (!r) return plural(y, 'year');
+    return plural(y, 'year') + ', ' + plural(r, 'month');
+  }
+
+  var gForm = document.getElementById('growth-form'), gOut = document.getElementById('g-out');
+  function runGrowth() {
+    var p = val('g-amt'), a = val('g-start'), b = val('g-end'), r = val('g-rate');
+    if (!(p >= 0) || !(a >= 0) || !(b > 0) || !(r >= 0)) {
+      gOut.innerHTML = '<p class="msg">Enter a number of zero or more in each box.</p>'; return;
+    }
+    if (b <= a) { gOut.innerHTML = '<p class="msg">The end age has to be later than the start age.</p>'; return; }
+    var now = growth(p, a, b, r), later = a + 10, rows, tail;
+    rows = '<tr><th scope="row">Start at ' + a + '</th><td>' + money.format(now.contributed) + '</td><td>' + money.format(now.value) + '</td></tr>';
+    if (later < b) {
+      var w = growth(p, later, b, r);
+      rows += '<tr><th scope="row">Start at ' + later + '</th><td>' + money.format(w.contributed) + '</td><td>' + money.format(w.value) + '</td></tr>';
+      tail = '<p class="diff">Waiting ten years saves ' + money.format(now.contributed - w.contributed) +
+             ' in contributions and costs <strong>' + money.format(now.value - w.value) + '</strong> by age ' + b + '.</p>';
+    } else {
+      tail = '<p class="msg">Starting ten years later, at ' + later + ', leaves no time before age ' + b + '.</p>';
+    }
+    gOut.innerHTML = '<table class="out"><thead><tr><th scope="col">Plan</th><th scope="col">You put in</th><th scope="col">Value at ' + b +
+                     '</th></tr></thead><tbody>' + rows + '</tbody></table>' + tail;
+  }
+
+  var dForm = document.getElementById('debt-form'), dOut = document.getElementById('d-out');
+  function runDebt() {
+    var bal = val('d-bal'), apr = val('d-apr'), pay = val('d-pay');
+    if (!(bal > 0)) { dOut.innerHTML = '<p class="msg">Enter a balance greater than zero.</p>'; return; }
+    if (!(apr >= 0)) { dOut.innerHTML = '<p class="msg">Enter an APR of zero or more.</p>'; return; }
+    if (!(pay > 0)) { dOut.innerHTML = '<p class="msg">Enter a monthly payment greater than zero.</p>'; return; }
+    var res = payoff(bal, apr, pay);
+    if (res.never) {
+      dOut.innerHTML = '<p class="warn">At ' + cents.format(pay) + ' a month, this balance will never be paid off. The first month\'s interest alone is ' +
+                       cents.format(res.firstInterest) + ', so the payment has to be more than that before the balance starts to shrink.</p>';
+      return;
+    }
+    if (res.capped) { dOut.innerHTML = '<p class="warn">At this payment the balance would take more than 100 years to pay off.</p>'; return; }
+    dOut.innerHTML = '<dl class="out-dl"><div><dt>Months to pay off</dt><dd>' + res.months + ' <span>(' + duration(res.months) + ')</span></dd></div>' +
+                     '<div><dt>Total interest</dt><dd>' + money.format(res.interest) + '</dd></div>' +
+                     '<div><dt>Total paid</dt><dd>' + money.format(bal + res.interest) + '</dd></div></dl>';
+  }
+
+  [[gForm, runGrowth], [dForm, runDebt]].forEach(function (pair) {
+    pair[0].addEventListener('input', pair[1]);
+    pair[0].addEventListener('submit', function (e) { e.preventDefault(); pair[1](); });
+    pair[1]();
+  });
+})();
+</script>
+</body>
+</html>
