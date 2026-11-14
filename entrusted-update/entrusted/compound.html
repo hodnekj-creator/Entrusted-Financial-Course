@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compound interest | Entrusted</title>
+<meta name="description" content="Compound interest chart, a year-by-year spreadsheet, and an opportunity cost calculator.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%231d5640'/%3E%3Ctext x='16' y='23.5' font-family='Georgia,serif' font-size='21' text-anchor='middle' fill='%23f7f4ec'%3EE%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="ci-page">
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head">
+<div class="wrap head-inner">
+<a class="brand" href="index.html"><span class="brand-name">Entrusted</span><span class="brand-sub">Managing God's Money</span></a>
+<nav class="site-nav" aria-label="Main"><ul><li><a href="index.html">Home</a></li><li><a href="steps.html">Baby Steps</a></li><li><a href="basics.html">Money Basics</a></li><li><a href="one-night.html">One Night</a></li><li><a href="campus.html">4 Weeks</a></li><li><a href="church.html">8 Weeks</a></li><li><a href="handouts.html">Handouts</a></li><li><a href="leader.html">Leader Prep</a></li><li><a href="tools.html" aria-current="page">Tools</a></li><li><a href="about.html">About</a></li></ul></nav>
+</div>
+</header>
+<main id="main">
+<header class="page-head wrap">
+<h1>Compound interest</h1>
+<p class="lede">See how steady saving grows, change the numbers year by year, and work out what a purchase could have grown to. Everything runs in your browser; nothing you type is stored or sent anywhere.</p>
+</header>
+<div class="wrap ci">
+<div class="tabs" role="tablist" aria-label="Calculator">
+<button type="button" role="tab" id="chart" aria-controls="panel-chart" aria-selected="true">Growth chart</button>
+<button type="button" role="tab" id="year-by-year" aria-controls="panel-sheet" aria-selected="false" tabindex="-1">Year by year</button>
+<button type="button" role="tab" id="opportunity-cost" aria-controls="panel-cost" aria-selected="false" tabindex="-1">Opportunity cost</button>
+</div>
+
+<section class="plan-box" id="plan" aria-labelledby="plan-h">
+<h2 class="plan-h" id="plan-h">Your plan</h2>
+<form id="plan-form" class="calc calc-5" novalidate>
+<label for="p-bal">Starting balance ($)<input id="p-bal" type="number" inputmode="decimal" min="0" step="any" value="0"></label>
+<label for="p-monthly">Monthly amount ($)<input id="p-monthly" type="number" inputmode="decimal" step="any" value="200"></label>
+<label for="p-rate">Annual return (%)<input id="p-rate" type="number" inputmode="decimal" step="0.1" value="7"></label>
+<label for="p-start">Start age<input id="p-start" type="number" inputmode="numeric" min="0" max="110" step="1" value="22"></label>
+<label for="p-end">End age<input id="p-end" type="number" inputmode="numeric" min="1" max="120" step="1" value="65"></label>
+</form>
+<p class="msg plan-msg" id="plan-msg" role="alert" hidden></p>
+<p class="plan-note" id="plan-note" hidden><span id="plan-note-text"></span> <button type="button" class="link-btn" id="note-reset">Reset to the plan</button></p>
+</section>
+
+<section class="panel" role="tabpanel" id="panel-chart" aria-labelledby="chart">
+<dl class="stats" id="c-stats"></dl>
+<div class="chart-head">
+<ul class="legend">
+<li><span class="sw sw-value"></span>Growth</li>
+<li><span class="sw sw-put"></span>You put in</li>
+<li id="lg-cmp"><span class="sw-line"></span><span id="lg-cmp-text">Total value if you start later</span></li>
+</ul>
+<p class="cmp"><label><input type="checkbox" id="c-cmp" checked> Compare with starting</label> <input type="number" id="c-delay" inputmode="numeric" value="10" min="1" max="60" step="1" aria-label="Years later"> <span>years later</span></p>
+</div>
+<p class="msg" id="cmp-msg" hidden></p>
+<div class="chart" id="chart-box" tabindex="0" role="group" aria-label="Growth chart. Use the left and right arrow keys to read each year. The Year by year tab has every value as a table.">
+<div class="tip" id="chart-tip" hidden></div>
+</div>
+<p class="vh" id="chart-live" aria-live="polite"></p>
+<p class="note">The return is compounded monthly. Real returns rise and fall from year to year and are not guaranteed; try uneven years in the Year by year tab. This is a teaching tool, not investment advice.</p>
+</section>
+
+<section class="panel" role="tabpanel" id="panel-sheet" aria-labelledby="year-by-year" hidden>
+<div class="sheet-tools">
+<p class="hint">Type a new return or monthly amount in any year. It carries into every year after, until you change it again; clear the cell to go back to the plan. A one-time amount applies to that year only; use a minus sign for a withdrawal. Total put in includes the starting balance.</p>
+<div class="sheet-btns"><button type="button" class="btn-quiet" id="s-reset">Reset changes</button><button type="button" class="btn-quiet" id="s-csv">Download CSV</button><button type="button" class="btn-quiet" id="s-print">Print</button></div>
+</div>
+<div class="sheet-wrap">
+<table class="sheet">
+<thead><tr><th scope="col">Age</th><th scope="col">Year</th><th scope="col" class="edit-h">Return (%)</th><th scope="col" class="edit-h">Monthly ($)</th><th scope="col" class="edit-h">One-time ($)</th><th scope="col">Put in this year</th><th scope="col">Growth this year</th><th scope="col">Total put in</th><th scope="col">Balance at year end</th></tr></thead>
+<tbody id="sheet-body"></tbody>
+<tfoot id="sheet-foot"></tfoot>
+</table>
+</div>
+<p class="note">Money is added at the end of each month and grows at that year's return divided by 12. One-time amounts go in at the start of the year. Returns are not guaranteed.</p>
+</section>
+
+<section class="panel" role="tabpanel" id="panel-cost" aria-labelledby="opportunity-cost" hidden>
+<p class="panel-intro">What a purchase could have grown to if the same money had been invested instead.</p>
+<form id="cost-form" class="calc calc-4" novalidate>
+<label for="o-price">Purchase amount ($)<input id="o-price" type="number" inputmode="decimal" min="0" step="any" value="1000"></label>
+<label for="o-freq">How often<select id="o-freq"><option value="once" selected>One time</option><option value="day">Every day</option><option value="week">Every week</option><option value="month">Every month</option><option value="year">Every year</option></select></label>
+<label for="o-years">Years<input id="o-years" type="number" inputmode="numeric" min="1" max="60" step="1" value="20"></label>
+<label for="o-rate">Annual return (%)<input id="o-rate" type="number" inputmode="decimal" step="0.1" value="7"></label>
+</form>
+<div id="cost-out" aria-live="polite"></div>
+<p class="note">This does not mean a purchase is wrong. It shows the full cost, so the choice is made on purpose. Returns are not guaranteed.</p>
+<details><summary>How this is calculated</summary>
+<p>Each amount is treated as invested on the day it would have been spent, and it grows at the annual return divided by 12 each month. Daily and weekly amounts are added up by month.</p>
+</details>
+</section>
+</div>
+</main>
+<footer class="site-foot">
+<div class="wrap">
+<p class="foot-name">Entrusted: Managing God's Money</p>
+<p>Teaching for churches and small groups, not professional financial advice. Every scripture reference opens the passage in the NIV on Bible Gateway, or read it in your own Bible. The Baby Steps are Dave Ramsey's; this course is not affiliated with Ramsey Solutions. <a href="about.html">About this course</a></p>
+</div>
+</footer>
+<script id="ci-core">
+function planRows(base, overrides) {
+  var rows = [], rate = base.rate, monthly = base.monthly;
+  for (var age = base.start; age < base.end; age++) {
+    var o = overrides[age] || {};
+    if (o.rate !== undefined) rate = o.rate;
+    if (o.monthly !== undefined) monthly = o.monthly;
+    rows.push({ age: age, rate: rate, monthly: monthly, lump: o.lump || 0,
+                rateSet: o.rate !== undefined, monthlySet: o.monthly !== undefined });
+  }
+  return rows;
+}
+function simulate(rows, fromAge, startBalance) {
+  var bal = 0, total = 0, years = [], points = [];
+  for (var k = 0; k < rows.length; k++) {
+    var r = rows[k];
+    if (r.age < fromAge) continue;
+    if (r.age === fromAge) {
+      bal += startBalance; total += startBalance;
+      points.push({ age: r.age, value: bal, put: total });
+    }
+    var begin = bal, put = 0, dep = r.lump, lump;
+    if (bal + dep < 0) dep = -bal;
+    bal += dep; put += dep; lump = dep;
+    var i = r.rate / 1200;
+    for (var m = 0; m < 12; m++) {
+      bal = bal * (1 + i);
+      dep = r.monthly;
+      if (bal + dep < 0) dep = -bal;
+      bal += dep; put += dep;
+    }
+    total += put;
+    years.push({ age: r.age, rate: r.rate, monthly: r.monthly, lump: lump, put: put,
+                 growth: bal - begin - put, total: total, balance: bal });
+    points.push({ age: r.age + 1, value: bal, put: total });
+  }
+  return { years: years, points: points };
+}
+var PER_YEAR = { once: 0, day: 365, week: 52, month: 12, year: 1 };
+function oppCost(price, freq, years, ratePct) {
+  var n = Math.round(years * 12), i = ratePct / 1200, bal = 0, spent = 0;
+  for (var m = 0; m < n; m++) {
+    var dep;
+    if (freq === 'once') dep = m === 0 ? price : 0;
+    else if (freq === 'year') dep = m % 12 === 0 ? price : 0;
+    else dep = price * PER_YEAR[freq] / 12;
+    bal = (bal + dep) * (1 + i);
+    spent += dep;
+  }
+  return { spent: spent, value: bal };
+}
+</script>
+<script>
+(function () {
+  'use strict';
+  var C_VALUE = '#157a4b', C_PUT = '#b8862b', C_CMP = '#7d837e', C_GRID = '#e6dfd0', C_AXIS = '#bdb4a2',
+      C_SURF = '#fffdf8', C_INK2 = '#4e5651', SVGNS = 'http://www.w3.org/2000/svg';
+  var money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+  var money2 = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  function $(id) { return document.getElementById(id); }
+  function val(id) { var v = String($(id).value).trim(); return v === '' ? NaN : Number(v); }
+  function fmt(v) { v = Math.round(v); if (v === 0) v = 0; return money.format(v); }
+  function amt(v) { return v % 1 ? money2.format(v) : money.format(v); }
+  function plain(v) { return String(Math.round(v * 100) / 100); }
+  function addStat(dl, label, value) {
+    var d = document.createElement('div'), dt = document.createElement('dt'), dd = document.createElement('dd');
+    dt.textContent = label; dd.textContent = value; d.appendChild(dt); d.appendChild(dd); dl.appendChild(d);
+  }
+  function say(box, text) { var p = document.createElement('p'); p.className = 'msg'; p.textContent = text; box.appendChild(p); }
+
+  /* ---------- tabs */
+  var tabs = [].slice.call(document.querySelectorAll('[role="tab"]'));
+  function select(tab, focus, writeHash) {
+    tabs.forEach(function (t) {
+      var on = t === tab;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+      $(t.getAttribute('aria-controls')).hidden = !on;
+    });
+    $('plan').hidden = tab.id === 'opportunity-cost';
+    if (focus) tab.focus();
+    if (writeHash) { try { history.replaceState(null, '', '#' + tab.id); } catch (e) {} }
+    if (tab.id === 'chart') drawChart();
+  }
+  tabs.forEach(function (t, i) {
+    t.addEventListener('click', function () { select(t, false, true); });
+    t.addEventListener('keydown', function (e) {
+      var j = null;
+      if (e.key === 'ArrowRight') j = (i + 1) % tabs.length;
+      else if (e.key === 'ArrowLeft') j = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === 'Home') j = 0;
+      else if (e.key === 'End') j = tabs.length - 1;
+      if (j !== null) { e.preventDefault(); select(tabs[j], true, true); }
+    });
+  });
+
+  /* ---------- the shared plan */
+  var overrides = {}, plan = null, rows = [], sim = null, builtFor = '';
+  function readPlan() {
+    var p = { bal: val('p-bal'), monthly: val('p-monthly'), rate: val('p-rate'), start: val('p-start'), end: val('p-end') }, err = '';
+    if (!(p.bal >= 0)) err = 'Enter a starting balance of zero or more.';
+    else if (!isFinite(p.monthly)) err = 'Enter a monthly amount. Use 0 for none.';
+    else if (!(p.rate > -100 && p.rate <= 100)) err = 'Enter an annual return between -99 and 100 percent.';
+    else if (!(p.start >= 0 && p.start <= 110 && p.start % 1 === 0)) err = 'Enter the start age as a whole number.';
+    else if (!(p.end % 1 === 0 && p.end > p.start)) err = 'The end age has to be a whole number later than the start age.';
+    else if (p.end - p.start > 80) err = 'Keep the plan to 80 years or fewer.';
+    p.error = err;
+    return p;
+  }
+  function changedYears() {
+    var n = 0;
+    for (var k in overrides) {
+      var a = +k, o = overrides[k];
+      if (a >= plan.start && a < plan.end && (o.rate !== undefined || o.monthly !== undefined || o.lump)) n++;
+    }
+    return n;
+  }
+  function refresh() {
+    var p = readPlan(), msg = $('plan-msg');
+    if (p.error) {
+      msg.textContent = p.error; msg.hidden = false;
+      document.body.classList.add('ci-stale');
+      return;
+    }
+    msg.hidden = true;
+    document.body.classList.remove('ci-stale');
+    plan = p;
+    rows = planRows(plan, overrides);
+    sim = simulate(rows, plan.start, plan.bal);
+    var n = changedYears();
+    $('plan-note').hidden = !n;
+    $('plan-note-text').textContent = n === 1
+      ? '1 year has its own numbers in the Year by year tab, and the chart includes them.'
+      : n + ' years have their own numbers in the Year by year tab, and the chart includes them.';
+    updateStats();
+    drawChart();
+    renderSheet();
+  }
+  function resetOverrides() { overrides = {}; builtFor = ''; refresh(); }
+  $('plan-form').addEventListener('input', refresh);
+  $('plan-form').addEventListener('submit', function (e) { e.preventDefault(); });
+  $('note-reset').addEventListener('click', resetOverrides);
+
+  /* ---------- chart tab */
+  function compareSim() {
+    var on = $('c-cmp').checked, d = val('c-delay'), cmsg = $('cmp-msg');
+    $('lg-cmp').hidden = true; cmsg.hidden = true;
+    if (!on) return null;
+    if (!(d >= 1 && d % 1 === 0)) { cmsg.textContent = 'Enter a whole number of years to compare.'; cmsg.hidden = false; return null; }
+    var from = plan.start + d;
+    if (from >= plan.end) {
+      cmsg.textContent = 'Starting ' + d + ' years later, at ' + from + ', leaves no time before age ' + plan.end + '.';
+      cmsg.hidden = false; return null;
+    }
+    $('lg-cmp').hidden = false;
+    $('lg-cmp-text').textContent = 'Total value if you start at ' + from;
+    return simulate(rows, from, plan.bal);
+  }
+  function updateStats() {
+    var dl = $('c-stats'), last = sim.points[sim.points.length - 1], cmp = compareSim();
+    dl.textContent = '';
+    addStat(dl, 'Value at ' + plan.end, fmt(last.value));
+    addStat(dl, 'You put in', fmt(last.put));
+    addStat(dl, 'Growth', fmt(last.value - last.put));
+    if (cmp) {
+      var cl = cmp.points[cmp.points.length - 1];
+      addStat(dl, 'If you start at ' + cmp.points[0].age, fmt(cl.value));
+      addStat(dl, 'Cost of waiting', fmt(last.value - cl.value));
+    }
+  }
+  ['c-cmp', 'c-delay'].forEach(function (id) {
+    $(id).addEventListener('input', function () { if (plan && !plan.error) { updateStats(); drawChart(); } });
+  });
+
+  var box = $('chart-box'), tip = $('chart-tip'), live = $('chart-live'), geo = null, hoverIdx = null, focused = false;
+  function el(tag, attrs, parent) {
+    var e = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function niceStep(raw) {
+    var p = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10)), f = raw / p;
+    return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p;
+  }
+  function tickLabel(v, top) {
+    if (top < 10000) return money.format(v);
+    if (v === 0) return '$0';
+    if (v >= 1e6) return '$' + (+(v / 1e6).toFixed(2)) + 'M';
+    return '$' + (+(v / 1e3).toFixed(1)) + 'K';
+  }
+  function drawChart() {
+    if (!sim || $('panel-chart').hidden) return;
+    var W = box.clientWidth;
+    if (!W) return;
+    var narrow = W < 560, H = narrow ? 280 : 390;
+    var m = { l: narrow ? 52 : 66, r: narrow ? 14 : 22, t: 30, b: 42 };
+    var pts = sim.points, cmp = compareSim(), cpts = cmp ? cmp.points : [];
+    var a0 = plan.start, a1 = plan.end, pw = W - m.l - m.r, ph = H - m.t - m.b, max = 0;
+    pts.forEach(function (p) { max = Math.max(max, p.value, p.put); });
+    cpts.forEach(function (p) { max = Math.max(max, p.value); });
+    if (max <= 0) max = 1;
+    var step = niceStep(max / 4), nTicks = Math.ceil(max / step - 1e-9), top = nTicks * step;
+    function x(a) { return m.l + (a - a0) / (a1 - a0) * pw; }
+    function y(v) { return m.t + ph - Math.max(0, v) / top * ph; }
+
+    var old = box.querySelector('svg');
+    if (old) box.removeChild(old);
+    var svg = el('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, 'aria-hidden': 'true', focusable: 'false' });
+
+    for (var k = 0; k <= nTicks; k++) {
+      var v = k * step, yy = Math.round(y(v)) + 0.5;
+      el('line', { x1: m.l, x2: W - m.r, y1: yy, y2: yy, stroke: k === 0 ? C_AXIS : C_GRID, 'stroke-width': 1 }, svg);
+      el('text', { x: m.l - 8, y: yy + 4, 'text-anchor': 'end', 'class': 'ax' }, svg).textContent = tickLabel(v, top);
+    }
+    var span = a1 - a0, choices = [1, 2, 5, 10, 20], most = narrow ? 5 : 9, xs = 20;
+    for (var q = 0; q < choices.length; q++) { if (span / choices[q] <= most) { xs = choices[q]; break; } }
+    for (var a = Math.ceil(a0 / xs) * xs; a <= a1; a += xs) {
+      var xx = Math.round(x(a)) + 0.5;
+      el('line', { x1: xx, x2: xx, y1: m.t + ph, y2: m.t + ph + 5, stroke: C_AXIS }, svg);
+      el('text', { x: xx, y: m.t + ph + 20, 'text-anchor': 'middle', 'class': 'ax' }, svg).textContent = a;
+    }
+    el('text', { x: W - m.r, y: H - 3, 'text-anchor': 'end', 'class': 'ax' }, svg).textContent = 'Age';
+
+    function path(list, get) {
+      return list.map(function (p, i) { return (i ? 'L' : 'M') + x(p.age).toFixed(1) + ' ' + y(get(p)).toFixed(1); }).join('');
+    }
+    function base(p) { return Math.max(0, Math.min(p.put, p.value)); }
+    var back = pts.slice().reverse();
+    el('path', { d: path(pts, function (p) { return p.value; }) + back.map(function (p) {
+      return 'L' + x(p.age).toFixed(1) + ' ' + y(base(p)).toFixed(1); }).join('') + 'Z', fill: C_VALUE, 'fill-opacity': 0.12 }, svg);
+    el('path', { d: path(pts, base) + 'L' + x(pts[pts.length - 1].age).toFixed(1) + ' ' + y(0).toFixed(1) +
+      'L' + x(pts[0].age).toFixed(1) + ' ' + y(0).toFixed(1) + 'Z', fill: C_PUT, 'fill-opacity': 0.16 }, svg);
+    var line = { fill: 'none', 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' };
+    function stroke(d, color, extra) {
+      var at = { d: d, stroke: color };
+      for (var k in line) at[k] = line[k];
+      for (var j in extra || {}) at[j] = extra[j];
+      return el('path', at, svg);
+    }
+    if (cpts.length > 1) stroke(path(cpts, function (p) { return p.value; }), C_CMP, { 'stroke-dasharray': '6 5' });
+    stroke(path(pts, function (p) { return p.put; }), C_PUT);
+    stroke(path(pts, function (p) { return p.value; }), C_VALUE);
+
+    var last = pts[pts.length - 1], ex = x(last.age), ey = y(last.value);
+    el('circle', { cx: ex, cy: ey, r: 4, fill: C_VALUE, stroke: C_SURF, 'stroke-width': 2 }, svg);
+    el('text', { x: ex - 9, y: Math.max(14, ey - 12), 'text-anchor': 'end', 'class': 'end-label' }, svg).textContent = fmt(last.value);
+
+    var cross = el('line', { y1: m.t, y2: m.t + ph, stroke: C_INK2, 'stroke-width': 1, visibility: 'hidden' }, svg);
+    var dots = [C_VALUE, C_PUT, C_CMP].map(function (c) {
+      return el('circle', { r: 4, fill: c, stroke: C_SURF, 'stroke-width': 2, visibility: 'hidden' }, svg);
+    });
+    var hit = el('rect', { x: m.l - 6, y: 0, width: pw + 12, height: m.t + ph + 8, fill: 'transparent' }, svg);
+    box.insertBefore(svg, tip);
+    geo = { x: x, y: y, pts: pts, cpts: cpts, cross: cross, dots: dots, m: m, W: W };
+    function track(e) {
+      var r = svg.getBoundingClientRect();
+      show(Math.round((e.clientX - r.left - m.l) / pw * (a1 - a0)), false);
+    }
+    hit.addEventListener('pointermove', track);
+    hit.addEventListener('pointerdown', track);
+    hit.addEventListener('pointerleave', function () { if (!focused) hide(); });
+    if (hoverIdx !== null && focused) show(hoverIdx, false);
+  }
+  function place(dot, cx, cy) { dot.setAttribute('cx', cx); dot.setAttribute('cy', cy); dot.setAttribute('visibility', 'visible'); }
+  function tipRow(value, label, keyClass) {
+    var row = document.createElement('p'), key = document.createElement('span'), b = document.createElement('strong'), s = document.createElement('span');
+    row.className = 'tip-row'; key.className = 'key ' + keyClass; b.textContent = value; s.textContent = label;
+    row.appendChild(key); row.appendChild(b); row.appendChild(s); tip.appendChild(row);
+  }
+  function show(idx, announce) {
+    if (!geo) return;
+    var pts = geo.pts;
+    idx = Math.max(0, Math.min(pts.length - 1, idx));
+    hoverIdx = idx;
+    var p = pts[idx], xx = geo.x(p.age), c = null;
+    geo.cpts.forEach(function (q) { if (q.age === p.age) c = q; });
+    geo.cross.setAttribute('x1', xx); geo.cross.setAttribute('x2', xx); geo.cross.setAttribute('visibility', 'visible');
+    place(geo.dots[0], xx, geo.y(p.value));
+    place(geo.dots[1], xx, geo.y(p.put));
+    if (c) place(geo.dots[2], xx, geo.y(c.value)); else geo.dots[2].setAttribute('visibility', 'hidden');
+    tip.textContent = '';
+    var h = document.createElement('p'); h.className = 'tip-h'; h.textContent = 'Age ' + p.age; tip.appendChild(h);
+    tipRow(fmt(p.value), 'Total value', 'k-value');
+    tipRow(fmt(p.put), 'You put in', 'k-put');
+    tipRow(fmt(p.value - p.put), 'Growth', 'k-none');
+    if (c) tipRow(fmt(c.value), 'If you start at ' + geo.cpts[0].age, 'k-cmp');
+    tip.hidden = false;
+    var tw = tip.offsetWidth, left = xx + 14;
+    if (left + tw > geo.W - 4) left = xx - tw - 14;
+    if (left < 4) left = 4;
+    tip.style.left = left + 'px';
+    tip.style.top = (geo.m.t + 4) + 'px';
+    if (announce) live.textContent = 'Age ' + p.age + ': total value ' + fmt(p.value) + ', you put in ' + fmt(p.put) +
+      (c ? ', if you start at ' + geo.cpts[0].age + ' ' + fmt(c.value) : '') + '.';
+  }
+  function hide() {
+    hoverIdx = null; tip.hidden = true;
+    if (!geo) return;
+    geo.cross.setAttribute('visibility', 'hidden');
+    geo.dots.forEach(function (d) { d.setAttribute('visibility', 'hidden'); });
+  }
+  box.addEventListener('focus', function () { focused = true; if (geo) show(hoverIdx === null ? geo.pts.length - 1 : hoverIdx, true); });
+  box.addEventListener('blur', function () { focused = false; hide(); });
+  box.addEventListener('keydown', function (e) {
+    if (!geo) return;
+    var i = hoverIdx === null ? geo.pts.length - 1 : hoverIdx, n = null;
+    if (e.key === 'ArrowRight') n = i + 1;
+    else if (e.key === 'ArrowLeft') n = i - 1;
+    else if (e.key === 'Home') n = 0;
+    else if (e.key === 'End') n = geo.pts.length - 1;
+    else if (e.key === 'Escape') { hide(); return; }
+    if (n !== null) { e.preventDefault(); show(n, true); }
+  });
+  var pending = false;
+  function schedule() {
+    if (pending) return;
+    pending = true;
+    (window.requestAnimationFrame || setTimeout)(function () { pending = false; drawChart(); });
+  }
+  if (window.ResizeObserver) new ResizeObserver(schedule).observe(box);
+  else window.addEventListener('resize', schedule);
+
+  /* ---------- year by year tab */
+  var tbody = $('sheet-body'), tfoot = $('sheet-foot');
+  var KINDS = [['rate', 'Annual return, percent'], ['monthly', 'Monthly amount, dollars'], ['lump', 'One-time amount, dollars']];
+  function cell(tr, cls, text) { var td = document.createElement('td'); if (cls) td.className = cls; if (text !== undefined) td.textContent = text; tr.appendChild(td); return td; }
+  function buildRows() {
+    builtFor = plan.start + '-' + plan.end;
+    tbody.textContent = '';
+    rows.forEach(function (r, i) {
+      var tr = document.createElement('tr'), th = document.createElement('th');
+      th.scope = 'row'; th.textContent = r.age; tr.appendChild(th);
+      cell(tr, 'yr', i + 1);
+      KINDS.forEach(function (kind) {
+        var td = cell(tr, 'edit'), inp = document.createElement('input'), o = overrides[r.age] || {};
+        inp.type = 'text'; inp.inputMode = 'decimal'; inp.autocomplete = 'off';
+        inp.setAttribute('data-kind', kind[0]); inp.setAttribute('data-age', r.age);
+        inp.setAttribute('aria-label', kind[1] + ', age ' + r.age);
+        if (o[kind[0]] !== undefined && !(kind[0] === 'lump' && !o.lump)) inp.value = plain(o[kind[0]]);
+        td.appendChild(inp);
+      });
+      for (var j = 0; j < 4; j++) cell(tr, 'out-c');
+      tbody.appendChild(tr);
+    });
+  }
+  function renderSheet() {
+    if (!sim) return;
+    if (builtFor !== plan.start + '-' + plan.end) buildRows();
+    var trs = tbody.rows, putSum = 0, growSum = 0;
+    sim.years.forEach(function (yv, i) {
+      var r = rows[i], tr = trs[i];
+      if (!tr) return;
+      var ins = tr.querySelectorAll('input'), outs = tr.querySelectorAll('td.out-c');
+      ins[0].placeholder = plain(r.rate); ins[0].classList.toggle('set', r.rateSet);
+      ins[1].placeholder = plain(r.monthly); ins[1].classList.toggle('set', r.monthlySet);
+      ins[2].classList.toggle('set', !!r.lump);
+      outs[0].textContent = fmt(yv.put); outs[1].textContent = fmt(yv.growth);
+      outs[2].textContent = fmt(yv.total); outs[3].textContent = fmt(yv.balance);
+      outs[1].classList.toggle('neg', yv.growth < -0.5);
+      putSum += yv.put; growSum += yv.growth;
+    });
+    var last = sim.years[sim.years.length - 1];
+    tfoot.textContent = '';
+    var tr = document.createElement('tr'), th = document.createElement('th');
+    th.scope = 'row'; th.colSpan = 5; th.textContent = plan.bal ? 'Totals (starting balance ' + fmt(plan.bal) + ')' : 'Totals';
+    tr.appendChild(th);
+    cell(tr, '', fmt(putSum)); cell(tr, '', fmt(growSum)); cell(tr, '', fmt(last.total)); cell(tr, '', fmt(last.balance));
+    tfoot.appendChild(tr);
+  }
+  tbody.addEventListener('input', function (e) {
+    var inp = e.target;
+    if (inp.tagName !== 'INPUT') return;
+    var age = +inp.getAttribute('data-age'), kind = inp.getAttribute('data-kind');
+    var raw = inp.value.replace(/[$,%\s]/g, ''), o = overrides[age] || (overrides[age] = {});
+    if (raw === '-' || raw === '.' || raw === '-.') return;
+    var n = Number(raw);
+    if (raw === '') { delete o[kind]; inp.removeAttribute('aria-invalid'); }
+    else if (isFinite(n) && !(kind === 'rate' && (n <= -100 || n > 100))) { o[kind] = n; inp.removeAttribute('aria-invalid'); }
+    else { delete o[kind]; inp.setAttribute('aria-invalid', 'true'); }
+    refresh();
+  });
+  tbody.addEventListener('keydown', function (e) {
+    var inp = e.target;
+    if (inp.tagName !== 'INPUT') return;
+    var d = e.key === 'ArrowDown' || (e.key === 'Enter' && !e.shiftKey) ? 1 : e.key === 'ArrowUp' || (e.key === 'Enter' && e.shiftKey) ? -1 : 0;
+    if (!d) return;
+    var tr = inp.parentNode.parentNode, col = [].indexOf.call(tr.querySelectorAll('input'), inp);
+    var next = d > 0 ? tr.nextElementSibling : tr.previousElementSibling;
+    e.preventDefault();
+    if (next) { var t = next.querySelectorAll('input')[col]; t.focus(); t.select(); }
+  });
+  $('s-reset').addEventListener('click', resetOverrides);
+  $('s-print').addEventListener('click', function () { window.print(); });
+  $('s-csv').addEventListener('click', function () {
+    if (!sim) return;
+    var lines = ['Age,Year,Annual return (%),Monthly amount,One-time amount,Put in this year,Growth this year,Total put in,Balance at year end'];
+    if (plan.bal) lines.push('Start,,,,,,,' + plan.bal.toFixed(2) + ',' + plan.bal.toFixed(2));
+    sim.years.forEach(function (y, i) {
+      lines.push([y.age, i + 1, y.rate, y.monthly.toFixed(2), y.lump.toFixed(2), y.put.toFixed(2),
+                  y.growth.toFixed(2), y.total.toFixed(2), y.balance.toFixed(2)].join(','));
+    });
+    var url = URL.createObjectURL(new Blob([lines.join('\r\n') + '\r\n'], { type: 'text/csv' }));
+    var a = document.createElement('a');
+    a.href = url; a.download = 'entrusted-year-by-year.csv';
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(url); document.body.removeChild(a); }, 0);
+  });
+
+  /* ---------- opportunity cost tab */
+  var WORDS = { once: 'once', day: 'every day', week: 'every week', month: 'every month', year: 'every year' };
+  function runCost() {
+    var out = $('cost-out'), price = val('o-price'), freq = $('o-freq').value, years = val('o-years'), rate = val('o-rate');
+    out.textContent = '';
+    if (!(price > 0)) return say(out, 'Enter a purchase amount greater than zero.');
+    if (!(years >= 1 && years <= 60 && years % 1 === 0)) return say(out, 'Enter a whole number of years from 1 to 60.');
+    if (!(rate > -100 && rate <= 100)) return say(out, 'Enter an annual return between -99 and 100 percent.');
+    var r = oppCost(price, freq, years, rate), dl = document.createElement('dl');
+    dl.className = 'stats';
+    addStat(dl, freq === 'once' ? 'Spent' : 'Spent over ' + years + ' years', fmt(r.spent));
+    addStat(dl, 'Could grow to in ' + years + ' years', fmt(r.value));
+    addStat(dl, 'Growth given up', fmt(r.value - r.spent));
+    out.appendChild(dl);
+    var p = document.createElement('p');
+    p.className = 'cost-line';
+    p.textContent = freq === 'once'
+      ? 'Spending ' + amt(price) + ' once gives up about ' + fmt(r.value) + ' in ' + years + (years === 1 ? ' year' : ' years') +
+        ', if that money were invested at ' + rate + '% a year instead.'
+      : 'Spending ' + amt(price) + ' ' + WORDS[freq] + ' for ' + years + (years === 1 ? ' year' : ' years') + ' adds up to ' + fmt(r.spent) +
+        '. Invested instead at ' + rate + '% a year, it could grow to about ' + fmt(r.value) + '.';
+    out.appendChild(p);
+    var hs = [5, 10, 20, 30, 40];
+    if (hs.indexOf(years) < 0) hs.push(years);
+    hs.sort(function (a, b) { return a - b; });
+    var t = document.createElement('table'), cap = document.createElement('caption'), thead = document.createElement('thead'), tb = document.createElement('tbody');
+    t.className = 'out horizons'; cap.textContent = 'Over other time frames';
+    var hr = document.createElement('tr');
+    ['Years', 'Spent', 'Could grow to'].forEach(function (h) { var th = document.createElement('th'); th.scope = 'col'; th.textContent = h; hr.appendChild(th); });
+    thead.appendChild(hr);
+    hs.forEach(function (n) {
+      var res = oppCost(price, freq, n, rate), tr = document.createElement('tr'), th = document.createElement('th');
+      th.scope = 'row'; th.textContent = n; tr.appendChild(th);
+      cell(tr, '', fmt(res.spent)); cell(tr, '', fmt(res.value));
+      if (n === years) tr.className = 'chosen';
+      tb.appendChild(tr);
+    });
+    t.appendChild(cap); t.appendChild(thead); t.appendChild(tb); out.appendChild(t);
+  }
+  $('cost-form').addEventListener('input', runCost);
+  $('cost-form').addEventListener('change', runCost);
+  $('cost-form').addEventListener('submit', function (e) { e.preventDefault(); });
+
+  /* ---------- start */
+  refresh();
+  runCost();
+  var first = tabs.filter(function (t) { return '#' + t.id === location.hash; })[0] || tabs[0];
+  select(first, false, false);
+})();
+</script>
+</body>
+</html>
